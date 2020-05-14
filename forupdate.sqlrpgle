@@ -1,18 +1,19 @@
-    D CustData      e ds                  extname(CustMaster)
-D ChangeCode      s              1p 0
+Dcl-DS CustData  extname(CustMaster);
+End-DS;
+Dcl-S ChangeCode   Packed(1:0);
 
-/free                              
-     exec sql                       
+                              
+      exec sql                       
         declare Customer cursor for 
-           select * from CustMaster
-            where state = 'TX'      
-              for update of chgcod;
+        select * from CustMaster
+        where state = 'TX'      
+        for update of chgcod;
 
-     exec sql                       
+      exec sql                       
         open Customer;              
         // insert code to check for open error
                                     
-     dow '1';                       
+      dow '1';                       
         exec sql                    
            fetch Customer into :CustData;
         if sqlstt = '02000';        
@@ -27,11 +28,11 @@ D ChangeCode      s              1p 0
 
         // ChangeCode now has a new value for the customer.
         
-     exec sql                       
+        exec sql                       
            update CustMaster set chgcod = :ChangeCode
               where current of Customer;
-     enddo;                         
-     exec sql                       
+      enddo;                         
+      exec sql                       
         close Customer;             
         // insert code to check for close error
-     return;                        
+      return;            
