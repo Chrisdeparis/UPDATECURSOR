@@ -1,35 +1,37 @@
-    Dcl-DS EmplRec  extname(Employee);
-    End-DS;
+    D CustData      e ds                  extname(CustMaster)
+D ChangeCode      s              1p 0
 
-    exec sql
-      set option commit=*none,closqlcsr=*endmod;
-    
-    exec sql
-      declare EmpCursor cursor for
-      select * from Employee
-      for update of Salary;
-    
-    DOW '1';
-      
-      exec sql
-        fetch EmpCursor into :EmplRec;
-      
-      IF SqlStt <> '00000';
-        LEAVE;
-      ENDIF;
-      
-      IF AType = 'W';
-        Salary *= 1.04;
-        exec sql
-          update Employee set Salary = :Salary
-          where current of EmpCursor;
-        
-      ENDIF;
-      
-    ENDDO;
+/free                              
+     exec sql                       
+        declare Customer cursor for 
+           select * from CustMaster
+            where state = 'TX'      
+              for update of chgcod;
 
-    exec sql
-      close EmpCursor;
+     exec sql                       
+        open Customer;              
+        // insert code to check for open error
+                                    
+     dow '1';                       
+        exec sql                    
+           fetch Customer into :CustData;
+        if sqlstt = '02000';        
+           leave;                   
+        endif;                      
+        // insert code to check for fetch error
+
+        // insert calcs to calculate new Change Code here
+        // eval whatever ...
+        // call whatever ...
+        // etc.
+
+        // ChangeCode now has a new value for the customer.
         
-        
-        *inlr = *on;
+     exec sql                       
+           update CustMaster set chgcod = :ChangeCode
+              where current of Customer;
+     enddo;                         
+     exec sql                       
+        close Customer;             
+        // insert code to check for close error
+     return;                        
